@@ -12,10 +12,6 @@ function tsRenderHeader(containerId, activePage) {
 
   container.innerHTML = `
     <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-label="Top Steel Tracker logo">
-        <rect x="3" y="3" width="34" height="34" rx="6" fill="var(--color-primary)"/>
-        <path d="M11 27V13h4.2l4.1 8.6L23.4 13H27.6V27H23.9V18.9L20.3 27H18L14.7 18.9V27Z" fill="var(--color-text-inverse)"/>
-      </svg>
       <div class="brand-text">
         <span class="brand-title">Top Steel Tracker</span>
         <span class="brand-sub">Backroom pallet locations</span>
