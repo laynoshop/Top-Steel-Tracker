@@ -1,10 +1,7 @@
 /* login.js
    Handles access-code login for Top Steel Tracker.
-   Access codes are temporary placeholders until real user accounts are
-   wired up. Admin code unlocks admin-only actions later (like editing the
-   locked date field); normal code is for everyday team use.
 
-   ACCESS CODES (placeholder — replace once real users are set up):
+   ACCESS CODES:
      Admin code: 1595
      User code:  2026 */
 
@@ -45,26 +42,48 @@ function tsLogout() {
   window.location.href = "./index.html";
 }
 
-/* Wires up the login form on index.html. Called on that page only. */
-function tsInitLoginForm() {
-  const form = document.getElementById("loginForm");
-  const input = document.getElementById("accessCodeInput");
+/* Wires up the login page (index.html). */
+function tsInitLoginPage() {
+  const input   = document.getElementById("pinInput");
+  const btn     = document.getElementById("loginBtn");
   const errorEl = document.getElementById("loginError");
-  if (!form) return;
+  if (!input || !btn) return;
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+  function attemptLogin() {
     const ok = tsAttemptLogin(input.value);
     if (ok) {
       window.location.href = "./menu.html";
     } else {
-      errorEl.textContent = "Incorrect access code. Try again.";
+      if (errorEl) errorEl.textContent = "Incorrect PIN. Try again.";
       input.value = "";
       input.focus();
     }
+  }
+
+  btn.addEventListener("click", attemptLogin);
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") attemptLogin();
   });
 
   input.addEventListener("input", () => {
-    errorEl.textContent = "";
+    if (errorEl) errorEl.textContent = "";
   });
+}
+
+/* Called on every protected page to inject header + check session. */
+function tsInitPage(activePage) {
+  const session = tsRequireSession();
+  if (!session) return;
+  const header = document.getElementById("appHeader");
+  if (!header) return;
+  header.innerHTML =
+    '<div class="brand">' +
+    '<svg class="brand-mark" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#0a5c8a"/><path d="M10 34V20l14-8 14 8v14" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 34v-8h12v8" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/></svg>' +
+    '<div class="brand-text"><span class="brand-title">Top Steel</span><span class="brand-sub">Tracker</span></div>' +
+    '</div>' +
+    '<div class="header-actions">' +
+    '<span class="user-badge">' + session.role + '</span>' +
+    '<button class="logout-btn" onclick="tsLogout()">Sign out</button>' +
+    '</div>';
 }
