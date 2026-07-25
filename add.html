@@ -45,16 +45,18 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-header">
-      <h2 class="modal-title" id="modalTitle">Add Pallet - Top Steel #<span id="modalLocNum"></span></h2>
+      <h2 class="modal-title" id="modalTitle">Top Steel #<span id="modalLocNum"></span></h2>
       <button class="modal-close" id="modalClose" aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </div>
     <div class="modal-body">
-      <div class="field">
-        <label for="fieldLocation">Top Steel #</label>
-        <input id="fieldLocation" type="number" inputmode="numeric" min="1" max="214" placeholder="e.g. 42">
+
+      <!-- VizPick reminder banner -->
+      <div class="reminder-banner">
+        <span class="reminder-text">⚠️ REMINDER: This does not replace VizPick, a pallet ID must still be created before putting up in the top steel (unless it is New Mod freight)</span>
       </div>
+
       <div class="field">
         <label for="fieldDescription">Pallet Description</label>
         <input id="fieldDescription" type="text" placeholder="ex: Feature pallet of chips">
@@ -75,7 +77,7 @@
       <div class="field">
         <label for="fieldDate">Today's Date</label>
         <input id="fieldDate" type="text" disabled>
-        <span class="field-hint">Auto-filled and locked. Admins can adjust this later.</span>
+        <span class="field-hint">Auto-filled and locked.</span>
       </div>
       <div class="field">
         <label for="fieldAssociate">PLE Associate (who is placing in Top Steel)</label>
