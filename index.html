@@ -11,24 +11,6 @@
 </head>
 <body>
 <div class="login-screen">
-  <!-- Live stats bar -->
-  <div class="login-stats">
-    <div class="stats-row" aria-label="Summary">
-      <div class="stat-card">
-        <div class="stat-value" id="statOccupied">—</div>
-        <div class="stat-label">Occupied</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statOpen">—</div>
-        <div class="stat-label">Open</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">214</div>
-        <div class="stat-label">Total Locations</div>
-      </div>
-    </div>
-  </div>
-
   <div class="login-box">
     <svg class="login-logo" viewBox="0 0 48 48" fill="none">
       <rect width="48" height="48" rx="10" fill="#0a5c8a"/>
@@ -51,13 +33,6 @@
 <script>
   tsInitTheme();
   tsInitLoginPage();
-  // Populate live stats from localStorage
-  (function() {
-    var pallets = tsGetAllPallets();
-    var count = Object.keys(pallets).length;
-    document.getElementById("statOccupied").textContent = count;
-    document.getElementById("statOpen").textContent = 214 - count;
-  })();
 </script>
 </body>
 </html>
