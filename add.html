@@ -44,10 +44,12 @@
       <div class="reminder-banner">
         <span class="reminder-text">&#9888;&#65039; REMINDER: This does not replace VizPick, a pallet ID must still be created before putting up in the top steel (unless it is New Mod freight)</span>
       </div>
+
       <div class="field">
         <label for="fieldDescription">Pallet Description</label>
         <input id="fieldDescription" type="text" placeholder="ex: Feature pallet of chips">
       </div>
+
       <div class="field">
         <label for="fieldArea">Freight/Feature belongs to what area of the store</label>
         <select id="fieldArea" class="field-select">
@@ -61,10 +63,40 @@
           <option value="Fixtures/Shelves">Fixtures/Shelves</option>
         </select>
       </div>
+
+      <div class="field">
+        <label for="fieldFreightType">Type of Freight</label>
+        <select id="fieldFreightType" class="field-select">
+          <option value="" disabled selected>Select a type</option>
+          <option value="Feature">Feature</option>
+          <option value="New Mod">New Mod</option>
+          <option value="Mixed Freight">Mixed Freight</option>
+          <option value="Clearance/Deleted">Clearance/Deleted</option>
+        </select>
+      </div>
+
+      <!-- Freight type contextual warnings -->
+      <div class="freight-warning freight-warning--yellow" id="warnFeature" style="display:none;">
+        <span class="freight-warning-icon">⏰</span>
+        <span><strong>Reminder:</strong> Features should be pushed to the floor within 24 hours.</span>
+      </div>
+      <div class="freight-warning freight-warning--blue" id="warnNewMod" style="display:none;">
+        <span class="freight-warning-icon">📋</span>
+        <span><strong>Reminder:</strong> Ensure a paper is wrapped to the pallet with the department number, date, and that it says "New Mod".</span>
+      </div>
+      <div class="freight-warning freight-warning--red" id="warnMixed" style="display:none;">
+        <span class="freight-warning-icon">🚨</span>
+        <span><strong>Reminder:</strong> Mixed freight should never be placed into the top steel. Ensure you've consulted with the SM on the decision to do so.</span>
+      </div>
+      <div class="freight-warning freight-warning--red" id="warnClearance" style="display:none;">
+        <span class="freight-warning-icon">🚨</span>
+        <span><strong>Reminder:</strong> Clearance/Deleted should never be placed in top steel. Ensure you've partnered with AP/SM to confirm this is the best course of action.</span>
+      </div>
+
       <div class="field">
         <label for="fieldDate">Date &amp; Time Added</label>
         <input id="fieldDate" type="text" placeholder="MM/DD, HH:MM AM/PM">
-        <span class="field-hint" id="dateHint">Auto-filled. Admins can adjust.</span>
+        <span class="field-hint">Auto-filled. Admins can adjust.</span>
       </div>
       <div class="field">
         <label for="fieldAssociate">PLE Associate (who is placing in Top Steel)</label>

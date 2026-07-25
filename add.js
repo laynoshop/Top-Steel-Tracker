@@ -1,19 +1,41 @@
 /* add.js */
 function tsInitAddPage() {
-  const modalOverlay     = document.getElementById("modalOverlay");
-  const modalLocNum      = document.getElementById("modalLocNum");
-  const fieldDescription = document.getElementById("fieldDescription");
-  const fieldArea        = document.getElementById("fieldArea");
-  const fieldDate        = document.getElementById("fieldDate");
-  const fieldAssociate   = document.getElementById("fieldAssociate");
-  const fieldNotes       = document.getElementById("fieldNotes");
+  const modalOverlay      = document.getElementById("modalOverlay");
+  const modalLocNum       = document.getElementById("modalLocNum");
+  const fieldDescription  = document.getElementById("fieldDescription");
+  const fieldArea         = document.getElementById("fieldArea");
+  const fieldFreightType  = document.getElementById("fieldFreightType");
+  const fieldDate         = document.getElementById("fieldDate");
+  const fieldAssociate    = document.getElementById("fieldAssociate");
+  const fieldNotes        = document.getElementById("fieldNotes");
+
+  const warnFeature   = document.getElementById("warnFeature");
+  const warnNewMod    = document.getElementById("warnNewMod");
+  const warnMixed     = document.getElementById("warnMixed");
+  const warnClearance = document.getElementById("warnClearance");
+
+  const warnings = {
+    "Feature":           warnFeature,
+    "New Mod":           warnNewMod,
+    "Mixed Freight":     warnMixed,
+    "Clearance/Deleted": warnClearance
+  };
+
   let activeLocation = null;
 
   const session = tsGetSession();
   const isAdmin = session && session.role === "admin";
-
-  // Date field: editable for admin, locked for users
   fieldDate.disabled = !isAdmin;
+
+  function hideAllWarnings() {
+    Object.values(warnings).forEach(el => el.style.display = "none");
+  }
+
+  fieldFreightType.addEventListener("change", () => {
+    hideAllWarnings();
+    const w = warnings[fieldFreightType.value];
+    if (w) w.style.display = "";
+  });
 
   function refreshGrid() {
     tsRenderLocationGrid("gridContainer", "add", openAddModal);
@@ -29,11 +51,13 @@ function tsInitAddPage() {
     }
     activeLocation = locNum;
     modalLocNum.textContent = locNum;
-    fieldDescription.value = "";
-    fieldArea.value = "";
-    fieldDate.value = tsNowDateTime();
-    fieldAssociate.value = "";
-    fieldNotes.value = "";
+    fieldDescription.value  = "";
+    fieldArea.value         = "";
+    fieldFreightType.value  = "";
+    fieldDate.value         = tsNowDateTime();
+    fieldAssociate.value    = "";
+    fieldNotes.value        = "";
+    hideAllWarnings();
     modalOverlay.classList.add("open");
     fieldDescription.focus();
   }
@@ -48,11 +72,12 @@ function tsInitAddPage() {
     if (tsGetPallet(activeLocation)) { tsShowToast("Location " + activeLocation + " is already occupied"); return; }
     if (!fieldDescription.value.trim()) { tsShowToast("Pallet description is required"); return; }
     tsSetPallet(activeLocation, {
-      description: fieldDescription.value.trim(),
-      area:        fieldArea.value || "",
-      date:        fieldDate.value,
-      associate:   fieldAssociate.value.trim(),
-      notes:       fieldNotes.value.trim()
+      description:  fieldDescription.value.trim(),
+      area:         fieldArea.value || "",
+      freightType:  fieldFreightType.value || "",
+      date:         fieldDate.value,
+      associate:    fieldAssociate.value.trim(),
+      notes:        fieldNotes.value.trim()
     });
     closeModal();
     refreshGrid();

@@ -304,6 +304,37 @@ button{cursor:pointer;background:none;border:none;}
   color: #000000;
 }
 
+/* ---------- Freight type warning banners ---------- */
+.freight-warning{
+  display:flex;align-items:flex-start;gap:var(--space-3);
+  border-radius:var(--radius-md);
+  padding:var(--space-3) var(--space-4);
+  font-size:var(--text-xs);
+  line-height:1.5;
+  font-weight:500;
+}
+.freight-warning-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.freight-warning--yellow{
+  background:#fffbea;
+  border:1.5px solid #e6c619;
+  color:#7a5a00;
+}
+[data-theme="dark"] .freight-warning--yellow{
+  background:#2e2800;
+  border-color:#b89b00;
+  color:#f0d060;
+}
+.freight-warning--blue{
+  background:var(--color-primary-highlight);
+  border:1.5px solid color-mix(in oklch, var(--color-primary) 40%, transparent);
+  color:var(--color-primary);
+}
+.freight-warning--red{
+  background:var(--color-error-highlight);
+  border:1.5px solid color-mix(in oklch, var(--color-error) 40%, transparent);
+  color:var(--color-error);
+}
+
 /* ---------- Detail rows (View/Manage modal) ---------- */
 .detail-row{
   display:flex;flex-direction:column;gap:var(--space-1);
@@ -394,7 +425,7 @@ button{cursor:pointer;background:none;border:none;}
   display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);
   margin-bottom:var(--space-3);
 }
-.vm-filters-area{
+.vm-filters-area,.vm-filters-freight{
   margin-bottom:var(--space-4);
   padding-top:var(--space-2);
   border-top:1px solid var(--color-divider);
