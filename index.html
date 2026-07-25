@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Top Steel Tracker - Login</title>
+<title>Top Steel Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
@@ -11,26 +11,53 @@
 </head>
 <body>
 <div class="login-screen">
-  <form class="login-box" id="loginForm">
-    <label for="accessCodeInput" class="sr-only">Access code</label>
-    <input
-      id="accessCodeInput"
-      class="login-input"
-      type="password"
-      inputmode="numeric"
-      autocomplete="off"
-      placeholder="Access code"
-      maxlength="12"
-      autofocus
-    >
-    <p class="login-error" id="loginError" role="alert"></p>
-    <button type="submit" class="login-btn">Enter</button>
-  </form>
+  <!-- Live stats bar -->
+  <div class="login-stats">
+    <div class="stats-row" aria-label="Summary">
+      <div class="stat-card">
+        <div class="stat-value" id="statOccupied">—</div>
+        <div class="stat-label">Occupied</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statOpen">—</div>
+        <div class="stat-label">Open</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">214</div>
+        <div class="stat-label">Total Locations</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-box">
+    <svg class="login-logo" viewBox="0 0 48 48" fill="none">
+      <rect width="48" height="48" rx="10" fill="#0a5c8a"/>
+      <path d="M10 34V20l14-8 14 8v14" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M18 34v-8h12v8" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <p class="login-title">Top Steel Tracker</p>
+      <p class="login-sub">Enter your access code to continue</p>
+    </div>
+    <input class="login-input" id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="current-password">
+    <p class="login-error" id="loginError" aria-live="polite"></p>
+    <button class="login-btn" id="loginBtn" type="button">Sign In</button>
+  </div>
 </div>
 
+<script src="./data.js"></script>
 <script src="./login.js"></script>
+<script src="./theme.js"></script>
 <script>
-  tsInitLoginForm();
+  tsInitTheme();
+  tsInitLoginPage();
+  // Populate live stats from localStorage
+  (function() {
+    var pallets = tsGetAllPallets();
+    var count = Object.keys(pallets).length;
+    document.getElementById("statOccupied").textContent = count;
+    document.getElementById("statOpen").textContent = 214 - count;
+  })();
 </script>
 </body>
 </html>

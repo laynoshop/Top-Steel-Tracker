@@ -13,6 +13,22 @@
 <header class="app-header" id="appHeader"></header>
 
 <main class="menu-screen">
+  <div class="menu-stats">
+    <div class="stats-row" aria-label="Summary">
+      <div class="stat-card">
+        <div class="stat-value" id="statOccupied">0</div>
+        <div class="stat-label">Occupied</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statOpen">214</div>
+        <div class="stat-label">Open</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">214</div>
+        <div class="stat-label">Total Locations</div>
+      </div>
+    </div>
+  </div>
   <div>
     <h1 class="menu-title">What do you need to do?</h1>
     <p class="menu-sub">Choose an action to get started</p>
@@ -53,8 +69,18 @@
 <script src="./login.js"></script>
 <script src="./theme.js"></script>
 <script src="./nav.js"></script>
+<script src="./data.js"></script>
 <script>
   tsInitPage("menu");
+  // Populate live stats
+  (function() {
+    var pallets = tsGetAllPallets();
+    var count = Object.keys(pallets).length;
+    var el = document.getElementById("statOccupied");
+    var el2 = document.getElementById("statOpen");
+    if (el) el.textContent = count;
+    if (el2) el2.textContent = 214 - count;
+  })();
 </script>
 </body>
 </html>
