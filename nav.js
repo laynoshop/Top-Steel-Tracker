@@ -1,15 +1,10 @@
-/* nav.js
-   Renders the bottom navigation bar (Add / Remove / View/Manage) that appears
-   across every interior page, plus the shared page header with the
-   user role badge and logout link. `activePage` should be one of:
-   "menu", "add", "remove", "search". */
+/* nav.js */
 
 function tsRenderHeader(containerId, activePage) {
   const session = tsGetSession();
   const roleLabel = session && session.role === "admin" ? "Admin" : "User";
   const container = document.getElementById(containerId);
   if (!container) return;
-
   container.innerHTML = `
     <div class="brand">
       <div class="brand-text">
@@ -25,7 +20,6 @@ function tsRenderHeader(containerId, activePage) {
       </button>
     </div>
   `;
-
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) logoutBtn.addEventListener("click", tsLogout);
 }
@@ -35,9 +29,11 @@ function tsRenderBottomNav(containerId, activePage) {
   if (!container) return;
 
   const links = [
-    { key: "add",    href: "./add.html",    label: "Add",          icon: '<path d="M12 5v14M5 12h14"/>' },
-    { key: "remove", href: "./remove.html", label: "Remove",       icon: '<path d="M5 12h14"/>' },
-    { key: "search", href: "./search.html", label: "View/Manage",  icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' }
+    { key: "menu",   href: "./menu.html",   label: "Main",        icon: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+    { key: "add",    href: "./add.html",    label: "Add",         icon: '<path d="M12 5v14M5 12h14"/>' },
+    { key: "move",   href: "./move.html",   label: "Move",        icon: '<path d="M5 12h14M12 5l7 7-7 7"/>' },
+    { key: "remove", href: "./remove.html", label: "Remove",      icon: '<path d="M5 12h14"/>' },
+    { key: "search", href: "./search.html", label: "View/Manage", icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' }
   ];
 
   container.innerHTML = `
@@ -54,7 +50,6 @@ function tsRenderBottomNav(containerId, activePage) {
   `;
 }
 
-/* Call this once per interior page to set up header + nav + theme + auth guard. */
 function tsInitPage(activePage) {
   const session = tsRequireSession();
   if (!session) return null;

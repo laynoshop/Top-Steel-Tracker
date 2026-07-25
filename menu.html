@@ -12,55 +12,61 @@
 <body>
 <header class="app-header" id="appHeader"></header>
 
-<main class="menu-screen">
-  <div class="menu-stats">
-    <div class="stats-row" aria-label="Summary">
-      <div class="stat-card">
-        <div class="stat-value" id="statOccupied">0</div>
-        <div class="stat-label">Occupied</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statOpen">214</div>
-        <div class="stat-label">Open</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">214</div>
-        <div class="stat-label">Total Locations</div>
+<main class="main-wrap">
+  <div class="menu-screen">
+    <div>
+      <p class="menu-title">What would you like to do?</p>
+    </div>
+
+    <div class="menu-stats">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-value" id="statOccupied">0</div><div class="stat-label">Occupied</div></div>
+        <div class="stat-card"><div class="stat-value" id="statOpen">214</div><div class="stat-label">Open</div></div>
+        <div class="stat-card"><div class="stat-value">214</div><div class="stat-label">Total</div></div>
       </div>
     </div>
-  </div>
-  <div>
-    <h1 class="menu-title">What do you need to do?</h1>
-    <p class="menu-sub">Choose an action to get started</p>
-  </div>
-  <div class="menu-actions">
-    <a class="menu-btn" href="./add.html">
-      <span class="menu-btn-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      </span>
-      <span class="menu-btn-text">
-        <span class="menu-btn-label">Add</span>
-        <span class="menu-btn-desc">Assign a pallet to a Top Steel location</span>
-      </span>
-    </a>
-    <a class="menu-btn" href="./remove.html">
-      <span class="menu-btn-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
-      </span>
-      <span class="menu-btn-text">
-        <span class="menu-btn-label">Remove</span>
-        <span class="menu-btn-desc">Clear a pallet from a Top Steel location</span>
-      </span>
-    </a>
-    <a class="menu-btn" href="./search.html">
-      <span class="menu-btn-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      </span>
-      <span class="menu-btn-text">
-        <span class="menu-btn-label">View/Manage Top Steel</span>
-        <span class="menu-btn-desc">Browse, search, and filter all Top Steel locations</span>
-      </span>
-    </a>
+
+    <div class="menu-actions">
+      <a class="menu-btn" href="./add.html">
+        <div class="menu-btn-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <div class="menu-btn-text">
+          <span class="menu-btn-label">Add Pallet</span>
+          <span class="menu-btn-desc">Assign a pallet to a top steel location</span>
+        </div>
+      </a>
+
+      <a class="menu-btn" href="./move.html">
+        <div class="menu-btn-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+        <div class="menu-btn-text">
+          <span class="menu-btn-label">Move Top Steel Pallets</span>
+          <span class="menu-btn-desc">Relocate a pallet from one spot to another</span>
+        </div>
+      </a>
+
+      <a class="menu-btn" href="./remove.html">
+        <div class="menu-btn-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+        </div>
+        <div class="menu-btn-text">
+          <span class="menu-btn-label">Remove Pallet</span>
+          <span class="menu-btn-desc">Mark a top steel location as empty</span>
+        </div>
+      </a>
+
+      <a class="menu-btn" href="./search.html">
+        <div class="menu-btn-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </div>
+        <div class="menu-btn-text">
+          <span class="menu-btn-label">View / Manage</span>
+          <span class="menu-btn-desc">Browse, search, and filter all locations</span>
+        </div>
+      </a>
+    </div>
   </div>
 </main>
 
@@ -72,15 +78,9 @@
 <script src="./data.js"></script>
 <script>
   tsInitPage("menu");
-  // Populate live stats
-  (function() {
-    var pallets = tsGetAllPallets();
-    var count = Object.keys(pallets).length;
-    var el = document.getElementById("statOccupied");
-    var el2 = document.getElementById("statOpen");
-    if (el) el.textContent = count;
-    if (el2) el2.textContent = 214 - count;
-  })();
+  const count = Object.keys(tsGetAllPallets()).length;
+  document.getElementById("statOccupied").textContent = count;
+  document.getElementById("statOpen").textContent = 214 - count;
 </script>
 </body>
 </html>
