@@ -395,6 +395,7 @@ button{cursor:pointer;background:none;border:none;}
   font-size:var(--text-sm);font-weight:600;
   transition:background var(--transition-interactive), color var(--transition-interactive), border-color var(--transition-interactive);
   display:inline-flex;align-items:center;gap:var(--space-2);
+  text-decoration:none;
 }
 .btn-primary{background:var(--color-primary);color:var(--color-text-inverse);}
 .btn-primary:hover{background:var(--color-primary-hover);}
@@ -566,6 +567,75 @@ button{cursor:pointer;background:none;border:none;}
 /* ---------- Menu stats ---------- */
 .menu-stats{width:100%;max-width:340px;}
 .menu-stats .stats-row{margin-bottom:0;}
+
+/* ---------- Freight stat boxes (menu) ---------- */
+.freight-stats-row{
+  display:flex;
+  gap:var(--space-3);
+  width:100%;max-width:340px;
+}
+.freight-stat-card{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:var(--space-1);
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-3) var(--space-2);
+  box-shadow:var(--shadow-sm);
+  cursor:pointer;
+  transition:transform var(--transition-interactive), box-shadow var(--transition-interactive), border-color var(--transition-interactive);
+  min-height:64px;
+}
+.freight-stat-card:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-md);
+  border-color:var(--color-primary);
+}
+.freight-stat-value{
+  font-size:var(--text-lg);
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+  color:var(--color-primary);
+  line-height:1;
+}
+.freight-stat-label{
+  font-size:9px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  color:var(--color-text-muted);
+  text-align:center;
+  line-height:1.2;
+}
+
+/* ---------- Freight overlay list ---------- */
+.freight-overlay-hint{
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  text-align:center;
+  padding:var(--space-2) 0 var(--space-1);
+}
+.freight-overlay-row{
+  display:flex;
+  align-items:center;
+  gap:var(--space-4);
+  padding:var(--space-3) 0;
+  border-bottom:1px solid var(--color-divider);
+}
+.freight-overlay-row:last-child{border-bottom:none;}
+.freight-overlay-loc{
+  font-size:var(--text-sm);font-weight:700;
+  color:var(--color-primary);
+  font-variant-numeric:tabular-nums;
+  flex-shrink:0;
+  min-width:64px;
+}
+.freight-overlay-desc{
+  font-size:var(--text-sm);
+  color:var(--color-text);
+  font-weight:500;
+}
 
 /* ---------- Move Page ---------- */
 .move-steps{

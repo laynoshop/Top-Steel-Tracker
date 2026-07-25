@@ -8,6 +8,7 @@ function tsInitAddPage() {
   const fieldDate         = document.getElementById("fieldDate");
   const fieldAssociate    = document.getElementById("fieldAssociate");
   const fieldNotes        = document.getElementById("fieldNotes");
+  const freightTypeField  = document.getElementById("freightTypeFieldWrap");
 
   const warnFeature   = document.getElementById("warnFeature");
   const warnNewMod    = document.getElementById("warnNewMod");
@@ -28,8 +29,21 @@ function tsInitAddPage() {
   fieldDate.disabled = !isAdmin;
 
   function hideAllWarnings() {
-    Object.values(warnings).forEach(el => el.style.display = "none");
+    Object.values(warnings).forEach(el => { if (el) el.style.display = "none"; });
   }
+
+  // Hide/show freight type section based on area
+  function updateFreightVisibility() {
+    if (fieldArea.value === "Fixtures/Shelves") {
+      freightTypeField.style.display = "none";
+      hideAllWarnings();
+      fieldFreightType.value = "";
+    } else {
+      freightTypeField.style.display = "";
+    }
+  }
+
+  fieldArea.addEventListener("change", updateFreightVisibility);
 
   fieldFreightType.addEventListener("change", () => {
     hideAllWarnings();
@@ -58,6 +72,7 @@ function tsInitAddPage() {
     fieldAssociate.value    = "";
     fieldNotes.value        = "";
     hideAllWarnings();
+    freightTypeField.style.display = ""; // reset visibility
     modalOverlay.classList.add("open");
     fieldDescription.focus();
   }

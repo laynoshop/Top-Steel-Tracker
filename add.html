@@ -64,33 +64,36 @@
         </select>
       </div>
 
-      <div class="field">
-        <label for="fieldFreightType">Type of Freight</label>
-        <select id="fieldFreightType" class="field-select">
-          <option value="" disabled selected>Select a type</option>
-          <option value="Feature">Feature</option>
-          <option value="New Mod">New Mod</option>
-          <option value="Mixed Freight">Mixed Freight</option>
-          <option value="Clearance/Deleted">Clearance/Deleted</option>
-        </select>
-      </div>
+      <!-- Freight type field — hidden when Fixtures/Shelves is selected -->
+      <div id="freightTypeFieldWrap">
+        <div class="field">
+          <label for="fieldFreightType">Type of Freight</label>
+          <select id="fieldFreightType" class="field-select">
+            <option value="" disabled selected>Select a type</option>
+            <option value="Feature">Feature</option>
+            <option value="New Mod">New Mod</option>
+            <option value="Mixed Freight">Mixed Freight</option>
+            <option value="Clearance/Deleted">Clearance/Deleted</option>
+          </select>
+        </div>
 
-      <!-- Freight type contextual warnings -->
-      <div class="freight-warning freight-warning--yellow" id="warnFeature" style="display:none;">
-        <span class="freight-warning-icon">⏰</span>
-        <span><strong>Reminder:</strong> Features should be pushed to the floor within 24 hours.</span>
-      </div>
-      <div class="freight-warning freight-warning--blue" id="warnNewMod" style="display:none;">
-        <span class="freight-warning-icon">📋</span>
-        <span><strong>Reminder:</strong> Ensure a paper is wrapped to the pallet with the department number, date, and that it says "New Mod".</span>
-      </div>
-      <div class="freight-warning freight-warning--red" id="warnMixed" style="display:none;">
-        <span class="freight-warning-icon">🚨</span>
-        <span><strong>Reminder:</strong> Mixed freight should never be placed into the top steel. Ensure you've consulted with the SM on the decision to do so.</span>
-      </div>
-      <div class="freight-warning freight-warning--red" id="warnClearance" style="display:none;">
-        <span class="freight-warning-icon">🚨</span>
-        <span><strong>Reminder:</strong> Clearance/Deleted should never be placed in top steel. Ensure you've partnered with AP/SM to confirm this is the best course of action.</span>
+        <!-- Contextual warnings -->
+        <div class="freight-warning freight-warning--yellow" id="warnFeature" style="display:none;">
+          <span class="freight-warning-icon">⏰</span>
+          <span><strong>Reminder:</strong> Features should be pushed to the floor within 24 hours.</span>
+        </div>
+        <div class="freight-warning freight-warning--blue" id="warnNewMod" style="display:none;">
+          <span class="freight-warning-icon">📋</span>
+          <span><strong>Reminder:</strong> Ensure a paper is wrapped to the pallet with the department number, date, and that it says "New Mod".</span>
+        </div>
+        <div class="freight-warning freight-warning--red" id="warnMixed" style="display:none;">
+          <span class="freight-warning-icon">🚨</span>
+          <span><strong>Reminder:</strong> Mixed freight should never be placed into the top steel. Ensure you've consulted with the SM on the decision to do so.</span>
+        </div>
+        <div class="freight-warning freight-warning--red" id="warnClearance" style="display:none;">
+          <span class="freight-warning-icon">🚨</span>
+          <span><strong>Reminder:</strong> Clearance/Deleted should never be placed in top steel. Ensure you've partnered with AP/SM to confirm this is the best course of action.</span>
+        </div>
       </div>
 
       <div class="field">
