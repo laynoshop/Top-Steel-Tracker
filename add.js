@@ -8,6 +8,7 @@ function tsInitAddPage() {
   const modalLocNum = document.getElementById("modalLocNum");
   const fieldLocation = document.getElementById("fieldLocation");
   const fieldDescription = document.getElementById("fieldDescription");
+  const fieldArea = document.getElementById("fieldArea");
   const fieldDate = document.getElementById("fieldDate");
   const fieldAssociate = document.getElementById("fieldAssociate");
   const fieldNotes = document.getElementById("fieldNotes");
@@ -26,6 +27,7 @@ function tsInitAddPage() {
     modalLocNum.textContent = locNum;
     fieldLocation.value = locNum;
     fieldDescription.value = "";
+    fieldArea.value = "";
     fieldDate.value = tsTodayMMDD();
     fieldAssociate.value = "";
     fieldNotes.value = "";
@@ -55,6 +57,7 @@ function tsInitAddPage() {
 
     tsSetPallet(locVal, {
       description: fieldDescription.value.trim(),
+      area: fieldArea.value || "",
       date: fieldDate.value,
       associate: fieldAssociate.value.trim(),
       notes: fieldNotes.value.trim()

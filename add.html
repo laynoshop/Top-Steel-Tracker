@@ -57,7 +57,19 @@
       </div>
       <div class="field">
         <label for="fieldDescription">Pallet Description</label>
-        <input id="fieldDescription" type="text" placeholder="e.g. Coil 4140 - 12ga">
+        <input id="fieldDescription" type="text" placeholder="ex: Feature pallet of chips">
+      </div>
+      <div class="field">
+        <label for="fieldArea">Area of Store</label>
+        <select id="fieldArea" class="field-select">
+          <option value="" disabled selected>Select an area</option>
+          <option value="Grocery">Grocery</option>
+          <option value="Grocery DSD">Grocery DSD</option>
+          <option value="Consumables">Consumables</option>
+          <option value="Fashion">Fashion</option>
+          <option value="GM">GM</option>
+          <option value="Automotive">Automotive</option>
+        </select>
       </div>
       <div class="field">
         <label for="fieldDate">Today's Date</label>
@@ -65,7 +77,7 @@
         <span class="field-hint">Auto-filled and locked. Admins can adjust this later.</span>
       </div>
       <div class="field">
-        <label for="fieldAssociate">PLE Associate</label>
+        <label for="fieldAssociate">PLE Associate (who is placing in Top Steel)</label>
         <input id="fieldAssociate" type="text" placeholder="e.g. J. Alvarez">
       </div>
       <div class="field">

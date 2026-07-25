@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Top Steel Tracker - Search</title>
+<title>Top Steel Tracker - View/Manage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
@@ -28,24 +28,39 @@
     </div>
   </div>
 
-  <section aria-label="Search pallets">
+  <section aria-label="View and manage Top Steel">
     <div class="section-title">
-      <span>Search Top Steel</span>
+      <span>View/Manage Top Steel</span>
     </div>
-    <div class="search-box" style="margin-bottom: var(--space-4); max-width: 480px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="searchInput" type="text" placeholder="Search by location, description, or associate" aria-label="Search">
+
+    <!-- Search bar -->
+    <div class="vm-search-wrap">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="Search by location, description, associate..." aria-label="Search">
+      </div>
     </div>
-    <div class="results-list" id="resultsList"></div>
+
+    <!-- Quick filters -->
+    <div class="vm-filters">
+      <button class="vm-filter-btn" id="filterOccupied" data-filter="occupied">Occupied</button>
+      <button class="vm-filter-btn" id="filterOpen" data-filter="open">Open</button>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid-container" id="gridContainer"></div>
   </section>
 </main>
 
 <nav id="bottomNav"></nav>
 
+<div class="toast" id="toast"></div>
+
 <script src="./login.js"></script>
 <script src="./theme.js"></script>
 <script src="./nav.js"></script>
 <script src="./data.js"></script>
+<script src="./grid.js"></script>
 <script src="./search.js"></script>
 <script>
   tsInitPage("search");

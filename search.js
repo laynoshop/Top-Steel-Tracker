@@ -1,61 +1,87 @@
 /* search.js
-   Page-specific logic for the Search page: filtering pallets by
-   location number, description, associate, or notes. Relies on
-   data.js for storage. */
+   View/Manage Top Steel: full grid view with search bar and
+   Occupied / Open quick-filter buttons. */
 
 function tsInitSearchPage() {
-  const searchInput = document.getElementById("searchInput");
-  const resultsList = document.getElementById("resultsList");
-  const statOccupied = document.getElementById("statOccupied");
-  const statOpen = document.getElementById("statOpen");
+  const searchInput    = document.getElementById("searchInput");
+  const gridContainer  = document.getElementById("gridContainer");
+  const statOccupied   = document.getElementById("statOccupied");
+  const statOpen       = document.getElementById("statOpen");
+  const btnOccupied    = document.getElementById("filterOccupied");
+  const btnOpen        = document.getElementById("filterOpen");
 
-  function renderResults(query) {
+  let activeFilter = null; // null | "occupied" | "open"
+
+  function updateStats() {
     const pallets = tsGetAllPallets();
-    const q = (query || "").trim().toLowerCase();
-    const entries = Object.keys(pallets)
-      .map(Number)
-      .sort((a, b) => a - b);
+    const count = Object.keys(pallets).length;
+    statOccupied.textContent = count;
+    statOpen.textContent = TS_TOTAL_LOCATIONS - count;
+  }
 
-    statOccupied.textContent = entries.length;
-    statOpen.textContent = TS_TOTAL_LOCATIONS - entries.length;
+  function renderGrid() {
+    const pallets = tsGetAllPallets();
+    const query   = (searchInput.value || "").trim().toLowerCase();
+    updateStats();
 
-    const filtered = entries.filter((locNum) => {
-      if (!q) return true;
-      const p = pallets[locNum];
-      const haystack = [
-        String(locNum),
-        p.description || "",
-        p.associate || "",
-        p.notes || ""
-      ].join(" ").toLowerCase();
-      return haystack.includes(q);
-    });
+    const slots = [];
+    for (let i = 1; i <= TS_TOTAL_LOCATIONS; i++) {
+      const pallet  = pallets[i] || null;
+      const occupied = !!pallet;
 
-    if (filtered.length === 0) {
-      resultsList.innerHTML =
-        '<div class="empty-note"><p>' +
-        (q ? "No pallets match your search." : "No pallets are currently assigned.") +
-        "</p></div>";
+      // Filter by quick-filter button
+      if (activeFilter === "occupied" && !occupied) continue;
+      if (activeFilter === "open"     &&  occupied) continue;
+
+      // Filter by search query
+      if (query) {
+        const haystack = [
+          String(i),
+          pallet ? (pallet.description || "") : "",
+          pallet ? (pallet.associate   || "") : "",
+          pallet ? (pallet.area        || "") : "",
+          pallet ? (pallet.notes       || "") : ""
+        ].join(" ").toLowerCase();
+        if (!haystack.includes(query)) continue;
+      }
+
+      slots.push({ locNum: i, pallet });
+    }
+
+    if (slots.length === 0) {
+      gridContainer.innerHTML = '<div class="empty-note"><p>No locations match your search or filter.</p></div>';
       return;
     }
 
-    resultsList.innerHTML = filtered
-      .map((locNum) => {
-        const p = pallets[locNum];
-        return `
-          <div class="result-card">
-            <div class="result-loc">#${locNum}</div>
-            <div class="result-details">
-              <div class="result-desc">${tsEscapeHtml(p.description || "Pallet")}</div>
-              <div class="result-meta">Added ${tsEscapeHtml(p.date || "")} ${p.associate ? "&middot; " + tsEscapeHtml(p.associate) : ""}</div>
-              ${p.notes ? '<div class="result-notes">' + tsEscapeHtml(p.notes) + "</div>" : ""}
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+    gridContainer.innerHTML = slots.map(({ locNum, pallet }) => {
+      const occupied = !!pallet;
+      const desc = pallet ? tsEscapeHtml(pallet.description || "") : "";
+      return `
+        <div class="slot${occupied ? " occupied" : ""}" data-loc="${locNum}">
+          <span class="slot-num">${locNum}</span>
+          ${desc ? `<span class="slot-desc">${desc}</span>` : ""}
+        </div>
+      `;
+    }).join("");
   }
 
-  searchInput.addEventListener("input", () => renderResults(searchInput.value));
-  renderResults("");
+  function setFilter(filter) {
+    if (activeFilter === filter) {
+      // toggle off
+      activeFilter = null;
+      btnOccupied.classList.remove("active");
+      btnOpen.classList.remove("active");
+    } else {
+      activeFilter = filter;
+      btnOccupied.classList.toggle("active", filter === "occupied");
+      btnOpen.classList.toggle("active", filter === "open");
+    }
+    renderGrid();
+  }
+
+  btnOccupied.addEventListener("click", () => setFilter("occupied"));
+  btnOpen.addEventListener("click",     () => setFilter("open"));
+  searchInput.addEventListener("input",  renderGrid);
+
+  renderGrid();
 }

@@ -1,5 +1,5 @@
 /* nav.js
-   Renders the bottom navigation bar (Add / Remove / Search) that appears
+   Renders the bottom navigation bar (Add / Remove / View/Manage) that appears
    across every interior page, plus the shared page header with the
    user role badge and logout link. `activePage` should be one of:
    "menu", "add", "remove", "search". */
@@ -35,9 +35,9 @@ function tsRenderBottomNav(containerId, activePage) {
   if (!container) return;
 
   const links = [
-    { key: "add", href: "./add.html", label: "Add", icon: '<path d="M12 5v14M5 12h14"/>' },
-    { key: "remove", href: "./remove.html", label: "Remove", icon: '<path d="M5 12h14"/>' },
-    { key: "search", href: "./search.html", label: "Search", icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' }
+    { key: "add",    href: "./add.html",    label: "Add",          icon: '<path d="M12 5v14M5 12h14"/>' },
+    { key: "remove", href: "./remove.html", label: "Remove",       icon: '<path d="M5 12h14"/>' },
+    { key: "search", href: "./search.html", label: "View/Manage",  icon: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>' }
   ];
 
   container.innerHTML = `
