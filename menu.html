@@ -18,6 +18,13 @@
       <p class="menu-title">What would you like to do?</p>
     </div>
 
+    <!-- Urgent attention banner (shown only when criteria met) -->
+    <button class="urgent-banner" id="urgentBanner" style="display:none;" aria-label="View pallets needing urgent attention">
+      <span class="urgent-icon">&#9888;&#65039;</span>
+      <span class="urgent-text"><span id="urgentCount">0</span> pallets need urgent attention</span>
+      <svg class="urgent-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
     <!-- Main stats -->
     <div class="menu-stats">
       <div class="stats-row">
@@ -102,13 +109,31 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </div>
-    <div class="modal-body" id="freightOverlayBody">
-      <!-- Populated by JS -->
-    </div>
+    <div class="modal-body" id="freightOverlayBody"></div>
     <div class="modal-footer">
       <div class="footer-left"></div>
       <div class="footer-right">
         <button class="btn btn-ghost" id="freightOverlayCloseBtn">Close</button>
+        <a class="btn btn-primary" href="./search.html">View/Manage</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Urgent attention overlay -->
+<div class="modal-overlay" id="urgentOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="urgentOverlayTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="urgentOverlayTitle">&#9888;&#65039; Urgent Attention</h2>
+      <button class="modal-close" id="urgentOverlayClose" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="urgentOverlayBody"></div>
+    <div class="modal-footer">
+      <div class="footer-left"></div>
+      <div class="footer-right">
+        <button class="btn btn-ghost" id="urgentOverlayCloseBtn">Close</button>
         <a class="btn btn-primary" href="./search.html">View/Manage</a>
       </div>
     </div>
@@ -129,6 +154,30 @@
   document.getElementById("statOccupied").textContent = count;
   document.getElementById("statOpen").textContent = 214 - count;
 
+  // Parse stored date "MM/DD, H:MM AM/PM" -> Date object (current year)
+  function parsePalletDate(str) {
+    if (!str) return null;
+    try {
+      // Format: "07/25, 3:45 PM"
+      const m = str.match(/(\d{1,2})\/(\d{1,2}),?\s+(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+      if (!m) return null;
+      let [, mo, dy, hr, min, ampm] = m;
+      hr = parseInt(hr, 10);
+      if (ampm.toUpperCase() === "PM" && hr !== 12) hr += 12;
+      if (ampm.toUpperCase() === "AM" && hr === 12) hr = 0;
+      const now = new Date();
+      const d = new Date(now.getFullYear(), parseInt(mo,10)-1, parseInt(dy,10), hr, parseInt(min,10));
+      // If the parsed date is in the future by more than 1 day, it's probably last year
+      if (d - now > 86400000) d.setFullYear(now.getFullYear() - 1);
+      return d;
+    } catch(e) { return null; }
+  }
+
+  function hoursAgo(date) {
+    if (!date) return 0;
+    return (Date.now() - date.getTime()) / 36e5;
+  }
+
   // Tally freight types
   const freightCounts = { "Feature": 0, "New Mod": 0, "Mixed Freight": 0, "Clearance/Deleted": 0 };
   Object.values(pallets).forEach(p => {
@@ -139,8 +188,57 @@
   document.getElementById("fStatMixed").textContent   = freightCounts["Mixed Freight"];
   document.getElementById("fStatCD").textContent      = freightCounts["Clearance/Deleted"];
 
-  // Freight overlay
-  const freightOverlay     = document.getElementById("freightOverlay");
+  // --- Urgent attention logic ---
+  const urgentPallets = []; // { loc, p, reason }
+  Object.entries(pallets).forEach(([loc, p]) => {
+    const age = hoursAgo(parsePalletDate(p.date));
+    if (p.freightType === "Feature" && age >= 24) {
+      urgentPallets.push({ loc, p, reason: "Feature — over 24 hrs in top steel" });
+    } else if (p.freightType === "New Mod" && age >= 24 * 14) {
+      urgentPallets.push({ loc, p, reason: "New Mod — over 2 weeks in top steel" });
+    } else if (p.freightType === "Mixed Freight") {
+      urgentPallets.push({ loc, p, reason: "Mixed Freight — should not be in top steel" });
+    } else if (p.freightType === "Clearance/Deleted") {
+      urgentPallets.push({ loc, p, reason: "Clearance/Deleted — should not be in top steel" });
+    }
+  });
+
+  const urgentBanner = document.getElementById("urgentBanner");
+  if (urgentPallets.length > 0) {
+    document.getElementById("urgentCount").textContent = urgentPallets.length;
+    urgentBanner.style.display = "";
+    document.querySelector(".menu-screen").classList.add("menu-screen--urgent");
+  }
+
+  // --- Urgent overlay ---
+  const urgentOverlay    = document.getElementById("urgentOverlay");
+  const urgentOverlayBody = document.getElementById("urgentOverlayBody");
+
+  function openUrgentOverlay() {
+    urgentPallets.sort((a,b) => parseInt(a.loc) - parseInt(b.loc));
+    urgentOverlayBody.innerHTML =
+      '<p class="freight-overlay-hint">These pallets require immediate action. Head to <strong>View/Manage</strong> for full details.</p>' +
+      urgentPallets.map(({ loc, p, reason }) =>
+        '<div class="freight-overlay-row urgent-overlay-row">' +
+          '<div class="freight-overlay-loc">Spot #' + loc + '</div>' +
+          '<div class="urgent-overlay-detail">' +
+            '<span class="freight-overlay-desc">' + tsEscapeHtml(p.description || 'Pallet') + '</span>' +
+            '<span class="urgent-overlay-reason">' + tsEscapeHtml(reason) + '</span>' +
+          '</div>' +
+        '</div>'
+      ).join("");
+    urgentOverlay.classList.add("open");
+  }
+
+  urgentBanner.addEventListener("click", openUrgentOverlay);
+
+  function closeUrgentOverlay() { urgentOverlay.classList.remove("open"); }
+  document.getElementById("urgentOverlayClose").addEventListener("click", closeUrgentOverlay);
+  document.getElementById("urgentOverlayCloseBtn").addEventListener("click", closeUrgentOverlay);
+  urgentOverlay.addEventListener("click", (e) => { if (e.target === urgentOverlay) closeUrgentOverlay(); });
+
+  // --- Freight overlay ---
+  const freightOverlay      = document.getElementById("freightOverlay");
   const freightOverlayTitle = document.getElementById("freightOverlayTitle");
   const freightOverlayBody  = document.getElementById("freightOverlayBody");
 
@@ -151,7 +249,6 @@
       if (p.freightType === freightType) matches.push({ loc: parseInt(loc), p });
     });
     matches.sort((a, b) => a.loc - b.loc);
-
     if (matches.length === 0) {
       freightOverlayBody.innerHTML =
         '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:var(--space-8) 0;">No pallets of this type currently in top steel.</p>' +
@@ -174,7 +271,13 @@
   document.getElementById("freightOverlayClose").addEventListener("click", closeFreightOverlay);
   document.getElementById("freightOverlayCloseBtn").addEventListener("click", closeFreightOverlay);
   freightOverlay.addEventListener("click", (e) => { if (e.target === freightOverlay) closeFreightOverlay(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && freightOverlay.classList.contains("open")) closeFreightOverlay(); });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (urgentOverlay.classList.contains("open")) closeUrgentOverlay();
+      else if (freightOverlay.classList.contains("open")) closeFreightOverlay();
+    }
+  });
 </script>
 </body>
 </html>
