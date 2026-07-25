@@ -1,7 +1,7 @@
 /* search.js
    View/Manage Top Steel: full grid view with search bar,
-   Occupied / Open quick-filter buttons, and a detail modal
-   that shows all pallet data when an occupied slot is clicked. */
+   status quick-filters (Occupied/Open), multi-select area filters,
+   and a detail modal showing all pallet data on click. */
 
 function tsInitSearchPage() {
   const searchInput   = document.getElementById("searchInput");
@@ -11,7 +11,7 @@ function tsInitSearchPage() {
   const btnOccupied   = document.getElementById("filterOccupied");
   const btnOpen       = document.getElementById("filterOpen");
 
-  // Detail modal elements
+  // Detail modal
   const detailOverlay   = document.getElementById("detailOverlay");
   const detailLocNum    = document.getElementById("detailLocNum");
   const detailDesc      = document.getElementById("detailDescription");
@@ -21,9 +21,13 @@ function tsInitSearchPage() {
   const detailNotes     = document.getElementById("detailNotes");
   const detailNotesRow  = document.getElementById("detailNotesRow");
 
-  let activeFilter = null; // null | "occupied" | "open"
+  // Area filter buttons (multi-select)
+  const areaFilterBtns = document.querySelectorAll(".vm-filters-area [data-area]");
 
-  // ── Detail modal ──────────────────────────────────────────────
+  let statusFilter  = null;  // null | "occupied" | "open"
+  let activeAreas   = new Set(); // empty = no area filter
+
+  // ── Detail modal ──────────────────────────────────────────
   function openDetailModal(locNum, pallet) {
     detailLocNum.textContent    = locNum;
     detailDesc.textContent      = pallet.description || "—";
@@ -31,7 +35,7 @@ function tsInitSearchPage() {
     detailDate.textContent      = pallet.date        || "—";
     detailAssociate.textContent = pallet.associate   || "—";
     if (pallet.notes && pallet.notes.trim()) {
-      detailNotes.textContent   = pallet.notes;
+      detailNotes.textContent      = pallet.notes;
       detailNotesRow.style.display = "";
     } else {
       detailNotesRow.style.display = "none";
@@ -39,9 +43,7 @@ function tsInitSearchPage() {
     detailOverlay.classList.add("open");
   }
 
-  function closeDetailModal() {
-    detailOverlay.classList.remove("open");
-  }
+  function closeDetailModal() { detailOverlay.classList.remove("open"); }
 
   document.getElementById("detailClose").addEventListener("click", closeDetailModal);
   document.getElementById("detailCloseBtn").addEventListener("click", closeDetailModal);
@@ -50,15 +52,14 @@ function tsInitSearchPage() {
     if (e.key === "Escape" && detailOverlay.classList.contains("open")) closeDetailModal();
   });
 
-  // ── Stats ─────────────────────────────────────────────────────
+  // ── Stats ─────────────────────────────────────────────────
   function updateStats() {
-    const pallets = tsGetAllPallets();
-    const count = Object.keys(pallets).length;
+    const count = Object.keys(tsGetAllPallets()).length;
     statOccupied.textContent = count;
     statOpen.textContent = TS_TOTAL_LOCATIONS - count;
   }
 
-  // ── Grid render ───────────────────────────────────────────────
+  // ── Grid render ───────────────────────────────────────────
   function renderGrid() {
     const pallets = tsGetAllPallets();
     const query   = (searchInput.value || "").trim().toLowerCase();
@@ -69,9 +70,17 @@ function tsInitSearchPage() {
       const pallet   = pallets[i] || null;
       const occupied = !!pallet;
 
-      if (activeFilter === "occupied" && !occupied) continue;
-      if (activeFilter === "open"     &&  occupied) continue;
+      // Status filter
+      if (statusFilter === "occupied" && !occupied) continue;
+      if (statusFilter === "open"     &&  occupied) continue;
 
+      // Area filter (multi-select) — only applies to occupied slots
+      if (activeAreas.size > 0) {
+        const slotArea = pallet ? (pallet.area || "") : "";
+        if (!activeAreas.has(slotArea)) continue;
+      }
+
+      // Text search
       if (query) {
         const haystack = [
           String(i),
@@ -103,24 +112,36 @@ function tsInitSearchPage() {
         (pallet
           ? '<span class="slot-desc">' + tsEscapeHtml(pallet.description || "Pallet") + "</span>"
           : '<span class="slot-desc">Open</span>');
-
-      if (occupied) {
-        btn.addEventListener("click", () => openDetailModal(locNum, pallet));
-      }
+      if (occupied) btn.addEventListener("click", () => openDetailModal(locNum, pallet));
       gridContainer.appendChild(btn);
     });
   }
 
-  // ── Filters ───────────────────────────────────────────────────
-  function setFilter(filter) {
-    activeFilter = (activeFilter === filter) ? null : filter;
-    btnOccupied.classList.toggle("active", activeFilter === "occupied");
-    btnOpen.classList.toggle("active", activeFilter === "open");
+  // ── Status filter (single-select toggle) ──────────────────
+  function setStatusFilter(filter) {
+    statusFilter = (statusFilter === filter) ? null : filter;
+    btnOccupied.classList.toggle("active", statusFilter === "occupied");
+    btnOpen.classList.toggle("active", statusFilter === "open");
     renderGrid();
   }
 
-  btnOccupied.addEventListener("click", () => setFilter("occupied"));
-  btnOpen.addEventListener("click",     () => setFilter("open"));
+  // ── Area filter (multi-select toggle) ─────────────────────
+  areaFilterBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const area = btn.dataset.area;
+      if (activeAreas.has(area)) {
+        activeAreas.delete(area);
+        btn.classList.remove("active");
+      } else {
+        activeAreas.add(area);
+        btn.classList.add("active");
+      }
+      renderGrid();
+    });
+  });
+
+  btnOccupied.addEventListener("click", () => setStatusFilter("occupied"));
+  btnOpen.addEventListener("click",     () => setStatusFilter("open"));
   searchInput.addEventListener("input",  renderGrid);
 
   renderGrid();
