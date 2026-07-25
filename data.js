@@ -1,9 +1,5 @@
 /* data.js
-   Shared data layer for Top Steel Tracker.
-   Right now this uses localStorage as a stand-in "database" so that the
-   Add, Remove, and Search pages all read/write the same pallet records.
-   This file is the ONLY place that should change when we wire up Firebase —
-   every page calls these functions instead of touching storage directly. */
+   Shared data layer for Top Steel Tracker. */
 
 const TS_TOTAL_LOCATIONS = 214;
 const TS_STORAGE_KEY = "topSteelPallets";
@@ -12,23 +8,17 @@ function tsLoadPallets() {
   try {
     const raw = localStorage.getItem(TS_STORAGE_KEY);
     return raw ? JSON.parse(raw) : {};
-  } catch (e) {
-    console.error("Failed to load pallets", e);
-    return {};
-  }
+  } catch (e) { return {}; }
 }
 
 function tsSavePallets(pallets) {
   try {
     localStorage.setItem(TS_STORAGE_KEY, JSON.stringify(pallets));
-  } catch (e) {
-    console.error("Failed to save pallets", e);
-  }
+  } catch (e) { console.error("Failed to save pallets", e); }
 }
 
 function tsGetPallet(locationNum) {
-  const pallets = tsLoadPallets();
-  return pallets[locationNum] || null;
+  return tsLoadPallets()[locationNum] || null;
 }
 
 function tsSetPallet(locationNum, pallet) {
@@ -47,9 +37,21 @@ function tsGetAllPallets() {
   return tsLoadPallets();
 }
 
-function tsTodayMMDD() {
+/* Returns current date+time as "MM/DD, HH:MM AM/PM" */
+function tsNowDateTime() {
   const d = new Date();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
-  return mm + "/" + dd;
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+  return mm + "/" + dd + ", " + hours + ":" + minutes + " " + ampm;
+}
+
+/* Legacy alias */
+function tsTodayMMDD() { return tsNowDateTime(); }
+
+function tsEscapeHtml(str) {
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
