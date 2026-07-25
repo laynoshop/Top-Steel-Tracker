@@ -289,10 +289,6 @@ button{cursor:pointer;background:none;border:none;}
 .modal-body{padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-4);}
 
 /* ---------- VizPick reminder banner ---------- */
-@keyframes reminderFlash {
-  0%, 49%  { color: #000000; }
-  50%, 100% { color: transparent; }
-}
 .reminder-banner{
   background: #FFD700;
   border: 2px solid #b89800;
@@ -305,7 +301,6 @@ button{cursor:pointer;background:none;border:none;}
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  animation: reminderFlash 5s step-start infinite;
   color: #000000;
 }
 
