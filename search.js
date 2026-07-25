@@ -6,6 +6,7 @@ function tsInitSearchPage() {
   const statOpen       = document.getElementById("statOpen");
   const btnOccupied    = document.getElementById("filterOccupied");
   const btnOpen        = document.getElementById("filterOpen");
+  const btnUrgent      = document.getElementById("filterUrgent");
 
   // Detail modal
   const detailOverlay     = document.getElementById("detailOverlay");
@@ -14,6 +15,7 @@ function tsInitSearchPage() {
   const detailArea        = document.getElementById("detailArea");
   const detailFreightType = document.getElementById("detailFreightType");
   const detailDate        = document.getElementById("detailDate");
+  const detailDays        = document.getElementById("detailDays");
   const detailAssociate   = document.getElementById("detailAssociate");
   const detailNotes       = document.getElementById("detailNotes");
   const detailNotesRow    = document.getElementById("detailNotesRow");
@@ -35,7 +37,7 @@ function tsInitSearchPage() {
   const session  = tsGetSession();
   const isAdmin  = session && session.role === "admin";
 
-  let statusFilter   = null;
+  let statusFilter   = null; // null | "occupied" | "open" | "urgent"
   let activeAreas    = new Set();
   let activeFreights = new Set();
   let currentLocNum  = null;
@@ -50,6 +52,7 @@ function tsInitSearchPage() {
     detailArea.textContent        = pallet.area         || "\u2014";
     detailFreightType.textContent = pallet.freightType  || "\u2014";
     detailDate.textContent        = pallet.date         || "\u2014";
+    detailDays.textContent        = tsDaysLabel(pallet);
     detailAssociate.textContent   = pallet.associate    || "\u2014";
     if (pallet.notes && pallet.notes.trim()) {
       detailNotes.textContent      = pallet.notes;
@@ -86,9 +89,7 @@ function tsInitSearchPage() {
     editDescription.focus();
   }
 
-  function closeEditModal() {
-    editOverlay.classList.remove("open");
-  }
+  function closeEditModal() { editOverlay.classList.remove("open"); }
 
   function saveEdit() {
     const locNum = parseInt(editLocNum.textContent, 10);
@@ -135,8 +136,11 @@ function tsInitSearchPage() {
     for (let i = 1; i <= TS_TOTAL_LOCATIONS; i++) {
       const pallet   = pallets[i] || null;
       const occupied = !!pallet;
+      const urgent   = occupied && tsIsUrgent(pallet);
+
       if (statusFilter === "occupied" && !occupied) continue;
       if (statusFilter === "open"     &&  occupied) continue;
+      if (statusFilter === "urgent"   && !urgent)   continue;
       if (activeAreas.size > 0) {
         const slotArea = pallet ? (pallet.area || "") : "";
         if (!activeAreas.has(slotArea)) continue;
@@ -149,7 +153,7 @@ function tsInitSearchPage() {
         const haystack = [String(i), pallet ? pallet.description : "", pallet ? pallet.associate : "", pallet ? pallet.area : "", pallet ? pallet.freightType : "", pallet ? pallet.notes : ""].join(" ").toLowerCase();
         if (!haystack.includes(query)) continue;
       }
-      slots.push({ locNum: i, pallet });
+      slots.push({ locNum: i, pallet, urgent });
     }
 
     if (slots.length === 0) {
@@ -158,13 +162,17 @@ function tsInitSearchPage() {
     }
 
     gridContainer.innerHTML = "";
-    slots.forEach(({ locNum, pallet }) => {
+    slots.forEach(({ locNum, pallet, urgent }) => {
       const occupied = !!pallet;
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "slot" + (occupied ? " occupied" : "");
-      btn.setAttribute("aria-label", "Top Steel location " + locNum + (occupied ? ", occupied" : ", open"));
-      btn.innerHTML = '<span class="slot-num">' + locNum + '</span>' + (pallet ? '<span class="slot-desc">' + tsEscapeHtml(pallet.description || "Pallet") + '</span>' : '<span class="slot-desc">Open</span>');
+      btn.className = "slot" + (occupied ? " occupied" : "") + (urgent ? " urgent" : "");
+      btn.setAttribute("aria-label", "Top Steel location " + locNum + (occupied ? ", occupied" : ", open") + (urgent ? ", urgent" : ""));
+      btn.innerHTML =
+        '<span class="slot-num">' + locNum + '</span>' +
+        (pallet
+          ? '<span class="slot-desc">' + tsEscapeHtml(pallet.description || "Pallet") + '</span>'
+          : '<span class="slot-desc">Open</span>');
       if (occupied) btn.addEventListener("click", () => openDetailModal(locNum, pallet));
       gridContainer.appendChild(btn);
     });
@@ -174,7 +182,8 @@ function tsInitSearchPage() {
   function setStatusFilter(filter) {
     statusFilter = (statusFilter === filter) ? null : filter;
     btnOccupied.classList.toggle("active", statusFilter === "occupied");
-    btnOpen.classList.toggle("active", statusFilter === "open");
+    btnOpen.classList.toggle("active",     statusFilter === "open");
+    btnUrgent.classList.toggle("active",   statusFilter === "urgent");
     renderGrid();
   }
 
@@ -198,6 +207,7 @@ function tsInitSearchPage() {
 
   btnOccupied.addEventListener("click", () => setStatusFilter("occupied"));
   btnOpen.addEventListener("click",     () => setStatusFilter("open"));
+  btnUrgent.addEventListener("click",   () => setStatusFilter("urgent"));
   searchInput.addEventListener("input",  renderGrid);
 
   renderGrid();

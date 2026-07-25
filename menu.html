@@ -56,43 +56,20 @@
 
     <div class="menu-actions">
       <a class="menu-btn" href="./add.html">
-        <div class="menu-btn-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        </div>
-        <div class="menu-btn-text">
-          <span class="menu-btn-label">Add Pallet</span>
-          <span class="menu-btn-desc">Assign a pallet to a top steel location</span>
-        </div>
+        <div class="menu-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="menu-btn-text"><span class="menu-btn-label">Add Pallet</span><span class="menu-btn-desc">Assign a pallet to a top steel location</span></div>
       </a>
-
       <a class="menu-btn" href="./move.html">
-        <div class="menu-btn-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-        <div class="menu-btn-text">
-          <span class="menu-btn-label">Move Top Steel Pallets</span>
-          <span class="menu-btn-desc">Relocate a pallet from one spot to another</span>
-        </div>
+        <div class="menu-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="menu-btn-text"><span class="menu-btn-label">Move Top Steel Pallets</span><span class="menu-btn-desc">Relocate a pallet from one spot to another</span></div>
       </a>
-
       <a class="menu-btn" href="./remove.html">
-        <div class="menu-btn-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
-        </div>
-        <div class="menu-btn-text">
-          <span class="menu-btn-label">Remove Pallet</span>
-          <span class="menu-btn-desc">Mark a top steel location as empty</span>
-        </div>
+        <div class="menu-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></div>
+        <div class="menu-btn-text"><span class="menu-btn-label">Remove Pallet</span><span class="menu-btn-desc">Mark a top steel location as empty</span></div>
       </a>
-
       <a class="menu-btn" href="./search.html">
-        <div class="menu-btn-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        </div>
-        <div class="menu-btn-text">
-          <span class="menu-btn-label">View / Manage</span>
-          <span class="menu-btn-desc">Browse, search, and filter all locations</span>
-        </div>
+        <div class="menu-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+        <div class="menu-btn-text"><span class="menu-btn-label">View / Manage</span><span class="menu-btn-desc">Browse, search, and filter all locations</span></div>
       </a>
     </div>
   </div>
@@ -154,30 +131,6 @@
   document.getElementById("statOccupied").textContent = count;
   document.getElementById("statOpen").textContent = 214 - count;
 
-  // Parse stored date "MM/DD, H:MM AM/PM" -> Date object (current year)
-  function parsePalletDate(str) {
-    if (!str) return null;
-    try {
-      // Format: "07/25, 3:45 PM"
-      const m = str.match(/(\d{1,2})\/(\d{1,2}),?\s+(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-      if (!m) return null;
-      let [, mo, dy, hr, min, ampm] = m;
-      hr = parseInt(hr, 10);
-      if (ampm.toUpperCase() === "PM" && hr !== 12) hr += 12;
-      if (ampm.toUpperCase() === "AM" && hr === 12) hr = 0;
-      const now = new Date();
-      const d = new Date(now.getFullYear(), parseInt(mo,10)-1, parseInt(dy,10), hr, parseInt(min,10));
-      // If the parsed date is in the future by more than 1 day, it's probably last year
-      if (d - now > 86400000) d.setFullYear(now.getFullYear() - 1);
-      return d;
-    } catch(e) { return null; }
-  }
-
-  function hoursAgo(date) {
-    if (!date) return 0;
-    return (Date.now() - date.getTime()) / 36e5;
-  }
-
   // Tally freight types
   const freightCounts = { "Feature": 0, "New Mod": 0, "Mixed Freight": 0, "Clearance/Deleted": 0 };
   Object.values(pallets).forEach(p => {
@@ -188,19 +141,17 @@
   document.getElementById("fStatMixed").textContent   = freightCounts["Mixed Freight"];
   document.getElementById("fStatCD").textContent      = freightCounts["Clearance/Deleted"];
 
-  // --- Urgent attention logic ---
-  const urgentPallets = []; // { loc, p, reason }
+  // --- Urgent attention logic (uses shared helpers from data.js) ---
+  const urgentPallets = [];
   Object.entries(pallets).forEach(([loc, p]) => {
-    const age = hoursAgo(parsePalletDate(p.date));
-    if (p.freightType === "Feature" && age >= 24) {
-      urgentPallets.push({ loc, p, reason: "Feature — over 24 hrs in top steel" });
-    } else if (p.freightType === "New Mod" && age >= 24 * 14) {
-      urgentPallets.push({ loc, p, reason: "New Mod — over 2 weeks in top steel" });
-    } else if (p.freightType === "Mixed Freight") {
-      urgentPallets.push({ loc, p, reason: "Mixed Freight — should not be in top steel" });
-    } else if (p.freightType === "Clearance/Deleted") {
-      urgentPallets.push({ loc, p, reason: "Clearance/Deleted — should not be in top steel" });
-    }
+    if (!tsIsUrgent(p)) return;
+    const ft = p.freightType || "";
+    let reason = "";
+    if (ft === "Feature") reason = "Feature \u2014 over 24 hrs in top steel";
+    else if (ft === "New Mod") reason = "New Mod \u2014 over 2 weeks in top steel";
+    else if (ft === "Mixed Freight") reason = "Mixed Freight \u2014 should not be in top steel";
+    else if (ft === "Clearance/Deleted") reason = "Clearance/Deleted \u2014 should not be in top steel";
+    urgentPallets.push({ loc, p, reason });
   });
 
   const urgentBanner = document.getElementById("urgentBanner");
@@ -211,11 +162,11 @@
   }
 
   // --- Urgent overlay ---
-  const urgentOverlay    = document.getElementById("urgentOverlay");
+  const urgentOverlay     = document.getElementById("urgentOverlay");
   const urgentOverlayBody = document.getElementById("urgentOverlayBody");
 
   function openUrgentOverlay() {
-    urgentPallets.sort((a,b) => parseInt(a.loc) - parseInt(b.loc));
+    urgentPallets.sort((a, b) => parseInt(a.loc) - parseInt(b.loc));
     urgentOverlayBody.innerHTML =
       '<p class="freight-overlay-hint">These pallets require immediate action. Head to <strong>View/Manage</strong> for full details.</p>' +
       urgentPallets.map(({ loc, p, reason }) =>
@@ -223,6 +174,7 @@
           '<div class="freight-overlay-loc">Spot #' + loc + '</div>' +
           '<div class="urgent-overlay-detail">' +
             '<span class="freight-overlay-desc">' + tsEscapeHtml(p.description || 'Pallet') + '</span>' +
+            '<span class="urgent-overlay-days">' + tsDaysLabel(p) + '</span>' +
             '<span class="urgent-overlay-reason">' + tsEscapeHtml(reason) + '</span>' +
           '</div>' +
         '</div>'
@@ -231,7 +183,6 @@
   }
 
   urgentBanner.addEventListener("click", openUrgentOverlay);
-
   function closeUrgentOverlay() { urgentOverlay.classList.remove("open"); }
   document.getElementById("urgentOverlayClose").addEventListener("click", closeUrgentOverlay);
   document.getElementById("urgentOverlayCloseBtn").addEventListener("click", closeUrgentOverlay);
@@ -257,7 +208,13 @@
       freightOverlayBody.innerHTML =
         '<p class="freight-overlay-hint">For more details, head to the <strong>View/Manage</strong> page.</p>' +
         matches.map(({ loc, p }) =>
-          '<div class="freight-overlay-row"><span class="freight-overlay-loc">Spot #' + loc + '</span><span class="freight-overlay-desc">' + tsEscapeHtml(p.description || 'Pallet') + '</span></div>'
+          '<div class="freight-overlay-row">' +
+            '<span class="freight-overlay-loc">Spot #' + loc + '</span>' +
+            '<div class="urgent-overlay-detail">' +
+              '<span class="freight-overlay-desc">' + tsEscapeHtml(p.description || 'Pallet') + '</span>' +
+              '<span class="urgent-overlay-days">' + tsDaysLabel(p) + '</span>' +
+            '</div>' +
+          '</div>'
         ).join("");
     }
     freightOverlay.classList.add("open");

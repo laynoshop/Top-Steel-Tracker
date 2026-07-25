@@ -17,14 +17,15 @@ function tsRenderLocationGrid(containerId, mode, onSlotClick) {
     if (p) occupiedCount++;
 
     const isDisabled = (mode === "remove" && !p);
+    const urgent = p && tsIsUrgent(p);
 
     const slot = document.createElement("button");
     slot.type = "button";
-    slot.className = "slot" + (p ? " occupied" : "");
+    slot.className = "slot" + (p ? " occupied" : "") + (urgent ? " urgent" : "");
     slot.disabled = isDisabled;
     slot.setAttribute(
       "aria-label",
-      "Top Steel location " + i + (p ? ", occupied by " + p.description : ", open")
+      "Top Steel location " + i + (p ? ", occupied by " + p.description : ", open") + (urgent ? ", urgent" : "")
     );
     slot.innerHTML =
       '<span class="slot-num">' + i + "</span>" +

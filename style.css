@@ -174,7 +174,7 @@ button{cursor:pointer;background:none;border:none;}
 .nav-link.active{color:var(--color-primary);}
 .nav-link svg{width:20px;height:20px;}
 
-/* ---------- Stats row: always one line ---------- */
+/* ---------- Stats row ---------- */
 .stats-row{
   display:flex;
   flex-wrap:nowrap;
@@ -253,6 +253,13 @@ button{cursor:pointer;background:none;border:none;}
   border-color:color-mix(in oklch, var(--color-primary) 45%, var(--color-border));
 }
 .slot.occupied .slot-num{color:var(--color-primary);}
+/* Urgent slots override occupied blue with red */
+.slot.urgent{
+  background:var(--color-error-highlight) !important;
+  border-color:color-mix(in oklch, var(--color-error) 55%, var(--color-border)) !important;
+}
+.slot.urgent .slot-num{color:var(--color-error) !important;}
+.slot.urgent .slot-desc{color:var(--color-error);opacity:0.8;}
 .slot:disabled{opacity:0.4;cursor:not-allowed;}
 .slot:disabled:hover{transform:none;box-shadow:none;}
 
@@ -335,7 +342,7 @@ button{cursor:pointer;background:none;border:none;}
   color:var(--color-error);
 }
 
-/* ---------- Detail rows (View/Manage modal) ---------- */
+/* ---------- Detail rows ---------- */
 .detail-row{
   display:flex;flex-direction:column;gap:var(--space-1);
   padding:var(--space-3) 0;
@@ -451,6 +458,21 @@ button{cursor:pointer;background:none;border:none;}
   background:var(--color-primary);color:var(--color-text-inverse);
   border-color:var(--color-primary);
 }
+/* Urgent filter button gets red styling */
+.vm-filter-btn--urgent{
+  border-color:var(--color-error);
+  color:var(--color-error);
+}
+.vm-filter-btn--urgent:hover{
+  background:var(--color-error-highlight);
+  border-color:var(--color-error);
+  color:var(--color-error);
+}
+.vm-filter-btn--urgent.active{
+  background:var(--color-error);
+  border-color:var(--color-error);
+  color:#fff;
+}
 
 /* ---------- Results list ---------- */
 .results-list{display:flex;flex-direction:column;gap:var(--space-3);}
@@ -535,15 +557,11 @@ button{cursor:pointer;background:none;border:none;}
   padding:var(--space-4) var(--space-6);
   min-height:calc(100dvh - 65px - 64px);
 }
-/* Tighten further when urgent banner is present so everything fits */
 .menu-screen--urgent{
   gap:var(--space-3);
   justify-content:center;
 }
-.menu-title{
-  font-size:var(--text-xl);font-weight:700;text-align:center;
-  /* Slightly smaller when urgent to save vertical space */
-}
+.menu-title{font-size:var(--text-xl);font-weight:700;text-align:center;}
 .menu-sub{color:var(--color-text-muted);text-align:center;margin-top:calc(var(--space-2) * -1);}
 .menu-actions{
   display:flex;flex-direction:column;gap:var(--space-3);
@@ -676,6 +694,11 @@ button{cursor:pointer;background:none;border:none;}
 .urgent-overlay-detail{
   display:flex;flex-direction:column;gap:2px;
 }
+.urgent-overlay-days{
+  font-size:var(--text-xs);
+  color:var(--color-text-muted);
+  font-weight:500;
+}
 .urgent-overlay-reason{
   font-size:var(--text-xs);
   color:var(--color-error);
@@ -721,9 +744,7 @@ button{cursor:pointer;background:none;border:none;}
 .move-step.active .move-step-label{color:var(--color-text);}
 .move-step-arrow{color:var(--color-border);flex-shrink:0;}
 
-.move-selected-wrap{
-  margin-bottom:var(--space-4);
-}
+.move-selected-wrap{margin-bottom:var(--space-4);}
 .move-selected-chip{
   display:inline-flex;align-items:center;gap:var(--space-2);
   background:var(--color-primary-highlight);
@@ -738,7 +759,6 @@ button{cursor:pointer;background:none;border:none;}
   transition:opacity var(--transition-interactive);
 }
 .move-chip-clear:hover{opacity:1;}
-
 .move-confirm-desc{
   font-size:var(--text-sm);color:var(--color-text-muted);
   margin-bottom:var(--space-2);
