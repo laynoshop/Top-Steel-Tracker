@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Steel Tracker - Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="app-header" id="appHeader"></header>
+
+<main class="menu-screen">
+  <div>
+    <h1 class="menu-title">What do you need to do?</h1>
+    <p class="menu-sub">Choose an action to get started</p>
+  </div>
+  <div class="menu-actions">
+    <a class="menu-btn" href="./add.html">
+      <span class="menu-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <span class="menu-btn-text">
+        <span class="menu-btn-label">Add</span>
+        <span class="menu-btn-desc">Assign a pallet to a Top Steel location</span>
+      </span>
+    </a>
+    <a class="menu-btn" href="./remove.html">
+      <span class="menu-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+      </span>
+      <span class="menu-btn-text">
+        <span class="menu-btn-label">Remove</span>
+        <span class="menu-btn-desc">Clear a pallet from a Top Steel location</span>
+      </span>
+    </a>
+    <a class="menu-btn" href="./search.html">
+      <span class="menu-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </span>
+      <span class="menu-btn-text">
+        <span class="menu-btn-label">Search</span>
+        <span class="menu-btn-desc">Find a pallet by location, description, or associate</span>
+      </span>
+    </a>
+  </div>
+</main>
+
+<nav id="bottomNav"></nav>
+
+<script src="./login.js"></script>
+<script src="./theme.js"></script>
+<script src="./nav.js"></script>
+<script>
+  tsInitPage("menu");
+</script>
+</body>
+</html>

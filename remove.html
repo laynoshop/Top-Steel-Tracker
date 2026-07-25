@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Steel Tracker - Remove</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="app-header" id="appHeader"></header>
+
+<main class="main-wrap">
+  <div class="stats-row" aria-label="Summary">
+    <div class="stat-card">
+      <div class="stat-value" id="statOccupied">0</div>
+      <div class="stat-label">Occupied</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statOpen">214</div>
+      <div class="stat-label">Open</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">214</div>
+      <div class="stat-label">Total Locations</div>
+    </div>
+  </div>
+
+  <section aria-label="Remove a pallet">
+    <div class="section-title">
+      <span>Select an occupied location to remove its pallet</span>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot" style="background:var(--color-surface);border:1px solid var(--color-border);"></span>Open</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--color-primary);"></span>Occupied</span>
+      </div>
+    </div>
+    <div class="grid-container" id="gridContainer"></div>
+  </section>
+</main>
+
+<nav id="bottomNav"></nav>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Remove Pallet - Top Steel #<span id="modalLocNum"></span></h2>
+      <button class="modal-close" id="modalClose" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Pallet Description</label>
+        <input id="viewDescription" type="text" disabled>
+      </div>
+      <div class="field">
+        <label>Date Added</label>
+        <input id="viewDate" type="text" disabled>
+      </div>
+      <div class="field">
+        <label>PLE Associate</label>
+        <input id="viewAssociate" type="text" disabled>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="viewNotes" disabled></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="footer-left"></div>
+      <div class="footer-right">
+        <button class="btn btn-ghost" id="cancelBtn">Cancel</button>
+        <button class="btn btn-danger" id="confirmRemoveBtn">Remove Pallet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="./login.js"></script>
+<script src="./theme.js"></script>
+<script src="./nav.js"></script>
+<script src="./data.js"></script>
+<script src="./grid.js"></script>
+<script src="./remove.js"></script>
+<script>
+  tsInitPage("remove");
+  tsInitRemovePage();
+</script>
+</body>
+</html>
