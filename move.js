@@ -1,20 +1,23 @@
 /* move.js
-   3-step flow: pick source (occupied) -> pick destination (open) -> confirm */
+   3-step flow: pick source (occupied) -> pick any other location -> confirm move or swap */
 
 function tsInitMovePage() {
-  const gridContainer      = document.getElementById("gridContainer");
-  const gridHeadingText    = document.getElementById("gridHeadingText");
-  const selectedSourceWrap = document.getElementById("selectedSourceWrap");
+  const gridContainer       = document.getElementById("gridContainer");
+  const gridHeadingText     = document.getElementById("gridHeadingText");
+  const selectedSourceWrap  = document.getElementById("selectedSourceWrap");
   const selectedSourceLabel = document.getElementById("selectedSourceLabel");
-  const clearSourceBtn     = document.getElementById("clearSourceBtn");
-  const step1              = document.getElementById("step1Indicator");
-  const step2              = document.getElementById("step2Indicator");
-  const step3              = document.getElementById("step3Indicator");
-  const confirmOverlay     = document.getElementById("confirmOverlay");
-  const confirmFrom        = document.getElementById("confirmFrom");
-  const confirmTo          = document.getElementById("confirmTo");
-  const confirmDesc        = document.getElementById("confirmDesc");
-  const confirmArea        = document.getElementById("confirmArea");
+  const clearSourceBtn      = document.getElementById("clearSourceBtn");
+  const step1               = document.getElementById("step1Indicator");
+  const step2               = document.getElementById("step2Indicator");
+  const step3               = document.getElementById("step3Indicator");
+  const confirmOverlay      = document.getElementById("confirmOverlay");
+  const confirmTitle        = document.getElementById("confirmTitle");
+  const confirmFrom         = document.getElementById("confirmFrom");
+  const confirmTo           = document.getElementById("confirmTo");
+  const confirmDesc         = document.getElementById("confirmDesc");
+  const confirmArea         = document.getElementById("confirmArea");
+  const confirmToDesc       = document.getElementById("confirmToDesc");
+  const confirmToRow        = document.getElementById("confirmToRow");
 
   let sourceLocNum = null;
   let destLocNum   = null;
@@ -26,7 +29,7 @@ function tsInitMovePage() {
     });
   }
 
-  // ─ Step 1: show occupied slots ──────────────────────
+  // --- Step 1: show only occupied slots ---
   function renderStep1() {
     sourceLocNum = null;
     destLocNum   = null;
@@ -36,8 +39,8 @@ function tsInitMovePage() {
 
     const pallets = tsGetAllPallets();
     gridContainer.innerHTML = "";
-
     let hasOccupied = false;
+
     for (let i = 1; i <= TS_TOTAL_LOCATIONS; i++) {
       const pallet = pallets[i];
       if (!pallet) continue;
@@ -56,57 +59,82 @@ function tsInitMovePage() {
     }
   }
 
-  // ─ Step 2: pick destination (open slots) ─────────────
+  // --- Step 2: show ALL locations except the source ---
   function selectSource(locNum) {
     sourceLocNum = locNum;
     const pallet = tsGetPallet(locNum);
     selectedSourceLabel.textContent = "Top Steel #" + locNum + " \u2014 " + (pallet ? pallet.description : "");
     selectedSourceWrap.style.display = "";
-    gridHeadingText.textContent = "Now select the destination location";
+    gridHeadingText.textContent = "Select a destination (open or occupied \u2014 occupied spots will be swapped)";
     setActiveStep(2);
 
     const pallets = tsGetAllPallets();
     gridContainer.innerHTML = "";
 
-    let hasOpen = false;
     for (let i = 1; i <= TS_TOTAL_LOCATIONS; i++) {
-      if (pallets[i]) continue; // skip occupied
-      hasOpen = true;
+      if (i === sourceLocNum) continue; // skip the source itself
+      const pallet  = pallets[i] || null;
+      const occupied = !!pallet;
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "slot";
-      btn.setAttribute("aria-label", "Top Steel location " + i + ", open");
-      btn.innerHTML = '<span class="slot-num">' + i + '</span><span class="slot-desc">Open</span>';
+      btn.className = "slot" + (occupied ? " occupied" : "");
+      btn.setAttribute("aria-label", "Top Steel location " + i + (occupied ? ", occupied" : ", open"));
+      btn.innerHTML = '<span class="slot-num">' + i + '</span><span class="slot-desc">' + (pallet ? tsEscapeHtml(pallet.description || "Pallet") : "Open") + '</span>';
       btn.addEventListener("click", () => selectDest(i));
       gridContainer.appendChild(btn);
     }
-
-    if (!hasOpen) {
-      gridContainer.innerHTML = '<div class="empty-note"><p>No open locations to move to.</p></div>';
-    }
   }
 
-  // ─ Step 3: confirmation modal ──────────────────────
+  // --- Step 3: confirmation modal ---
   function selectDest(locNum) {
     destLocNum = locNum;
-    const pallet = tsGetPallet(sourceLocNum);
-    confirmFrom.textContent = "Top Steel #" + sourceLocNum;
-    confirmTo.textContent   = "Top Steel #" + destLocNum;
-    confirmDesc.textContent = pallet ? pallet.description : "—";
-    confirmArea.textContent = pallet ? (pallet.area || "—") : "—";
+    const srcPallet  = tsGetPallet(sourceLocNum);
+    const destPallet = tsGetPallet(destLocNum);
+    const isSwap     = !!destPallet;
+
+    confirmTitle.textContent = isSwap ? "Confirm Swap" : "Confirm Move";
+    confirmFrom.textContent  = "Top Steel #" + sourceLocNum;
+    confirmTo.textContent    = "Top Steel #" + destLocNum;
+    confirmDesc.textContent  = srcPallet ? srcPallet.description : "\u2014";
+    confirmArea.textContent  = srcPallet ? (srcPallet.area || "\u2014") : "\u2014";
+
+    if (isSwap) {
+      confirmToDesc.textContent    = destPallet.description + (destPallet.area ? " (" + destPallet.area + ")" : "");
+      confirmToRow.style.display   = "";
+    } else {
+      confirmToRow.style.display   = "none";
+    }
+
     setActiveStep(3);
     confirmOverlay.classList.add("open");
   }
 
-  // ─ Execute move ───────────────────────────────
+  // --- Execute move or swap ---
   function executeMove() {
-    const pallet = tsGetPallet(sourceLocNum);
-    if (!pallet) { tsShowToast("Source location is empty."); cancelConfirm(); return; }
-    if (tsGetPallet(destLocNum)) { tsShowToast("Destination is now occupied. Please try again."); cancelConfirm(); renderStep1(); return; }
-    tsSetPallet(destLocNum, pallet);
-    tsRemovePallet(sourceLocNum);
-    confirmOverlay.classList.remove("open");
-    tsShowToast("Moved Top Steel #" + sourceLocNum + " \u2192 #" + destLocNum);
+    const srcPallet  = tsGetPallet(sourceLocNum);
+    const destPallet = tsGetPallet(destLocNum);
+
+    if (!srcPallet) {
+      tsShowToast("Source location is empty. Please start over.");
+      cancelConfirm();
+      renderStep1();
+      return;
+    }
+
+    if (destPallet) {
+      // Swap: put dest into source, src into dest
+      tsSetPallet(sourceLocNum, destPallet);
+      tsSetPallet(destLocNum, srcPallet);
+      confirmOverlay.classList.remove("open");
+      tsShowToast("Swapped Top Steel #" + sourceLocNum + " \u21c4 #" + destLocNum);
+    } else {
+      // Simple move
+      tsSetPallet(destLocNum, srcPallet);
+      tsRemovePallet(sourceLocNum);
+      confirmOverlay.classList.remove("open");
+      tsShowToast("Moved Top Steel #" + sourceLocNum + " \u2192 #" + destLocNum);
+    }
+
     renderStep1();
   }
 
