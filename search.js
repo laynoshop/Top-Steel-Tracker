@@ -1,17 +1,56 @@
 /* search.js
-   View/Manage Top Steel: full grid view with search bar and
-   Occupied / Open quick-filter buttons. */
+   View/Manage Top Steel: full grid view with search bar,
+   Occupied / Open quick-filter buttons, and a detail modal
+   that shows all pallet data when an occupied slot is clicked. */
 
 function tsInitSearchPage() {
-  const searchInput    = document.getElementById("searchInput");
-  const gridContainer  = document.getElementById("gridContainer");
-  const statOccupied   = document.getElementById("statOccupied");
-  const statOpen       = document.getElementById("statOpen");
-  const btnOccupied    = document.getElementById("filterOccupied");
-  const btnOpen        = document.getElementById("filterOpen");
+  const searchInput   = document.getElementById("searchInput");
+  const gridContainer = document.getElementById("gridContainer");
+  const statOccupied  = document.getElementById("statOccupied");
+  const statOpen      = document.getElementById("statOpen");
+  const btnOccupied   = document.getElementById("filterOccupied");
+  const btnOpen       = document.getElementById("filterOpen");
+
+  // Detail modal elements
+  const detailOverlay   = document.getElementById("detailOverlay");
+  const detailLocNum    = document.getElementById("detailLocNum");
+  const detailDesc      = document.getElementById("detailDescription");
+  const detailArea      = document.getElementById("detailArea");
+  const detailDate      = document.getElementById("detailDate");
+  const detailAssociate = document.getElementById("detailAssociate");
+  const detailNotes     = document.getElementById("detailNotes");
+  const detailNotesRow  = document.getElementById("detailNotesRow");
 
   let activeFilter = null; // null | "occupied" | "open"
 
+  // ── Detail modal ──────────────────────────────────────────────
+  function openDetailModal(locNum, pallet) {
+    detailLocNum.textContent    = locNum;
+    detailDesc.textContent      = pallet.description || "—";
+    detailArea.textContent      = pallet.area        || "—";
+    detailDate.textContent      = pallet.date        || "—";
+    detailAssociate.textContent = pallet.associate   || "—";
+    if (pallet.notes && pallet.notes.trim()) {
+      detailNotes.textContent   = pallet.notes;
+      detailNotesRow.style.display = "";
+    } else {
+      detailNotesRow.style.display = "none";
+    }
+    detailOverlay.classList.add("open");
+  }
+
+  function closeDetailModal() {
+    detailOverlay.classList.remove("open");
+  }
+
+  document.getElementById("detailClose").addEventListener("click", closeDetailModal);
+  document.getElementById("detailCloseBtn").addEventListener("click", closeDetailModal);
+  detailOverlay.addEventListener("click", (e) => { if (e.target === detailOverlay) closeDetailModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && detailOverlay.classList.contains("open")) closeDetailModal();
+  });
+
+  // ── Stats ─────────────────────────────────────────────────────
   function updateStats() {
     const pallets = tsGetAllPallets();
     const count = Object.keys(pallets).length;
@@ -19,6 +58,7 @@ function tsInitSearchPage() {
     statOpen.textContent = TS_TOTAL_LOCATIONS - count;
   }
 
+  // ── Grid render ───────────────────────────────────────────────
   function renderGrid() {
     const pallets = tsGetAllPallets();
     const query   = (searchInput.value || "").trim().toLowerCase();
@@ -26,14 +66,12 @@ function tsInitSearchPage() {
 
     const slots = [];
     for (let i = 1; i <= TS_TOTAL_LOCATIONS; i++) {
-      const pallet  = pallets[i] || null;
+      const pallet   = pallets[i] || null;
       const occupied = !!pallet;
 
-      // Filter by quick-filter button
       if (activeFilter === "occupied" && !occupied) continue;
       if (activeFilter === "open"     &&  occupied) continue;
 
-      // Filter by search query
       if (query) {
         const haystack = [
           String(i),
@@ -53,29 +91,31 @@ function tsInitSearchPage() {
       return;
     }
 
-    gridContainer.innerHTML = slots.map(({ locNum, pallet }) => {
+    gridContainer.innerHTML = "";
+    slots.forEach(({ locNum, pallet }) => {
       const occupied = !!pallet;
-      const desc = pallet ? tsEscapeHtml(pallet.description || "") : "";
-      return `
-        <div class="slot${occupied ? " occupied" : ""}" data-loc="${locNum}">
-          <span class="slot-num">${locNum}</span>
-          ${desc ? `<span class="slot-desc">${desc}</span>` : ""}
-        </div>
-      `;
-    }).join("");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "slot" + (occupied ? " occupied" : "");
+      btn.setAttribute("aria-label", "Top Steel location " + locNum + (occupied ? ", occupied" : ", open"));
+      btn.innerHTML =
+        '<span class="slot-num">' + locNum + "</span>" +
+        (pallet
+          ? '<span class="slot-desc">' + tsEscapeHtml(pallet.description || "Pallet") + "</span>"
+          : '<span class="slot-desc">Open</span>');
+
+      if (occupied) {
+        btn.addEventListener("click", () => openDetailModal(locNum, pallet));
+      }
+      gridContainer.appendChild(btn);
+    });
   }
 
+  // ── Filters ───────────────────────────────────────────────────
   function setFilter(filter) {
-    if (activeFilter === filter) {
-      // toggle off
-      activeFilter = null;
-      btnOccupied.classList.remove("active");
-      btnOpen.classList.remove("active");
-    } else {
-      activeFilter = filter;
-      btnOccupied.classList.toggle("active", filter === "occupied");
-      btnOpen.classList.toggle("active", filter === "open");
-    }
+    activeFilter = (activeFilter === filter) ? null : filter;
+    btnOccupied.classList.toggle("active", activeFilter === "occupied");
+    btnOpen.classList.toggle("active", activeFilter === "open");
     renderGrid();
   }
 
